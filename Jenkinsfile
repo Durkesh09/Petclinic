@@ -90,10 +90,15 @@ pipeline {
         
         stage('2. SonarQube Scan') {
             steps {
-                // This 'withSonarQubeEnv' matches the name we used in Step 3
-                withSonarQubeEnv('SonarQube-Local') {
-                    // Triggers the scan using the tool we set up in Phase 1
-                    bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=my-app-key -Dsonar.sources=."
+                // This 'withCredentials' retrieves the token you saved in Jenkins earlier
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube-Local') {
+                        bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat " +
+                            "-Dsonar.projectKey=my-app-key " +
+                            "-Dsonar.sources=. " +
+                            "-Dsonar.host.url=http://localhost:9000 " +
+                            "-Dsonar.token=${SONAR_TOKEN}" 
+                    }
                 }
             }
         }
