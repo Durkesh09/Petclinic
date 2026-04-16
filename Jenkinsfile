@@ -102,11 +102,11 @@ pipeline {
             }
         }
 
-        stage('2. Build') {
+        stage('2. Build & Test') {
             steps {
-                echo 'Compiling the Java code...'
-                // 'bat' because we are on Windows
-                bat "mvn clean compile"
+                echo 'Running Tests and Generating Coverage Report...'
+                // 'test' triggers the unit tests and JaCoCo report generation
+                bat "mvn clean test"
             }
         }
 
@@ -121,7 +121,9 @@ pipeline {
                             bat "${scannerHome}\\bin\\sonar-scanner.bat " +
                                 "-Dsonar.projectKey=my-app-key " +
                                 "-Dsonar.sources=src/main/java " +
+                                "-Dsonar.tests=src/test/java " + // Tell it where the tests are
                                 "-Dsonar.java.binaries=target/classes " +
+                                "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml " + // The magic link
                                 "-Dsonar.token=${SONAR_TOKEN}"
                         }
                     }
