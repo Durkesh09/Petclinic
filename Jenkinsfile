@@ -116,7 +116,7 @@ pipeline {
                     // Jenkins finds the path for us based on the Nickname!
                     def scannerHome = tool 'SonarScanner-Windows'
                     
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
                         withSonarQubeEnv('SonarQube-Local') {
                             bat "${scannerHome}\\bin\\sonar-scanner.bat " +
                                 "-Dsonar.projectKey=my-app-key " +
