@@ -106,7 +106,7 @@ pipeline {
             steps {
                 echo 'Running Tests and Generating Coverage Report...'
                 // 'test' triggers the unit tests and JaCoCo report generation
-                bat "mvn clean test"
+                bat "mvn clean verify"
             }
         }
 
