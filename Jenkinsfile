@@ -91,7 +91,7 @@ pipeline {
         stage('2. SonarQube Scan') {
             steps {
                 // This 'withCredentials' retrieves the token you saved in Jenkins earlier
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube-Local') {
                         bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat " +
                             "-Dsonar.projectKey=my-app-key " +
