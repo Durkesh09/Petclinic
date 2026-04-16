@@ -78,34 +78,59 @@
 //                 sh "cp  /var/lib/jenkins/workspace/CI-CD/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
 
 
+//             }
+//         }
+//     }
+// }
+
+
+
+
+
 pipeline {
     agent any
     
+    tools {
+        // Tells Jenkins to use the Maven we just configured
+        maven 'Maven-3'
+    }
+
     stages {
         stage('1. Checkout') {
             steps {
                 checkout scm
             }
         }
-        
-        stage('2. SonarQube Scan') {
+
+        stage('2. Build') {
             steps {
-                // This 'withCredentials' retrieves the token you saved in Jenkins earlier
-                withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('SonarQube-Local') {
-                        bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat " +
-                            "-Dsonar.projectKey=my-app-key " +
-                            "-Dsonar.sources=. " +
-                            "-Dsonar.host.url=http://localhost:9000 " +
-                            "-Dsonar.token=${SONAR_TOKEN}" 
+                echo 'Compiling the Java code...'
+                // 'bat' because we are on Windows
+                bat "mvn clean compile"
+            }
+        }
+
+        stage('3. SonarQube Scan') {
+            steps {
+                script {
+                    // Jenkins finds the path for us based on the Nickname!
+                    def scannerHome = tool 'SonarScanner-Windows'
+                    
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        withSonarQubeEnv('SonarQube-Local') {
+                            bat "${scannerHome}\\bin\\sonar-scanner.bat " +
+                                "-Dsonar.projectKey=my-app-key " +
+                                "-Dsonar.sources=src/main/java " +
+                                "-Dsonar.java.binaries=target/classes " +
+                                "-Dsonar.token=${SONAR_TOKEN}"
+                        }
                     }
                 }
             }
         }
-        
-        stage("3. Quality Gate Check") {
+
+        stage("4. Quality Gate") {
             steps {
-                // Jenkins will now PAUSE here and wait for the ngrok webhook
                 timeout(time: 1, unit: 'HOURS') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -113,7 +138,3 @@ pipeline {
         }
     }
 }
-//             }
-//         }
-//     }
-// }
